@@ -1,0 +1,6 @@
+.*
+!.gitignore
+
+*~
+data/
+venv_titanic_mlflow/

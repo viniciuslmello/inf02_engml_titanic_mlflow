@@ -94,7 +94,9 @@ app = typer.Typer()
 def train_lr(n_folds : int = 10):
     print(f"Executando Validação Cruzada com k={n_folds}")
     
-    with mlflow.start_run():
+    experiment_id = mlflow.create_experiment('classificador_titanic')
+    
+    with mlflow.start_run(experiment_id=experiment_id):
         mlflow.log_param('model', 'logistic_regression')
         mlflow.log_param('normaalization', 'none')
         mlflow.log_param('n_folds', n_folds)

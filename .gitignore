@@ -4,3 +4,4 @@
 *~
 data/
 venv_titanic_mlflow/
+src/mlruns/

@@ -123,7 +123,10 @@ app = typer.Typer()
 def train_lr(n_folds : int = 10):
     print(f"Executando Validação Cruzada com k={n_folds}")
     
-    experiment_id = mlflow.create_experiment('classificador_titanic')
+    experiment_name = 'classificador_titanic'
+    experiment_id = mlflow.get_experiment_by_name(experiment_name)
+    if experiment_id is None:
+        experiment_id = mlflow.create_experiment(experiment_name)
     
     with mlflow.start_run(experiment_id=experiment_id):
         mlflow.log_param('model', 'logistic_regression')
@@ -141,7 +144,10 @@ def train_lr(n_folds : int = 10):
 def train_svm(n_folds : int = 10):
     print(f"Executando Validação Cruzada com k={n_folds}")
     
-    experiment_id = mlflow.create_experiment('classificador_titanic')
+    experiment_name = 'classificador_titanic'
+    experiment_id = mlflow.get_experiment_by_name(experiment_name)
+    if experiment_id is None:
+        experiment_id = mlflow.create_experiment(experiment_name)
     
     with mlflow.start_run(experiment_id=experiment_id):
         mlflow.log_param('model', 'svm_linear')

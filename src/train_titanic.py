@@ -1,4 +1,5 @@
 #!/bin/env/python
+import mlflow
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
@@ -55,13 +56,22 @@ def report_model(clf):
     print(f"Melhor Parametro: {clf.best_params_}")
     
     print(f"Melhor F1 médio: {clf.cv_results_['mean_test_f1'][idx]}")
+    mlflow.log_metric('f1_mean',clf.cv_results_['mean_test_f1'][idx])
+    
     print(f"Melhor F1 desvio: {clf.cv_results_['std_test_f1'][idx]}")
+    mlflow.log_metric('f1_std',clf.cv_results_['std_test_f1'][idx])
     
     print(f"Melhor Precision médio: {clf.cv_results_['mean_test_precision'][idx]}")
+    mlflow.log_metric('Precision_mean',clf.cv_results_['mean_test_precision'][idx])
+    
     print(f"Melhor Precision desvio: {clf.cv_results_['std_test_precision'][idx]}")    
+    mlflow.log_metric('Precision_std',clf.cv_results_['std_test_precision'][idx])
     
     print(f"Melhor Recall médio: {clf.cv_results_['mean_test_recall'][idx]}")
+    mlflow.log_metric('Recall_mean',clf.cv_results_['mean_test_recall'][idx])
+    
     print(f"Melhor Recall desvio: {clf.cv_results_['std_test_recall'][idx]}")
+    mlflow.log_metric('Recall_std',clf.cv_results_['std_test_recall'][idx])
         
     print(f"Resultado da Validação Cruzada")
     print(clf.cv_results_)
@@ -84,12 +94,15 @@ app = typer.Typer()
 def train_lr(n_folds : int = 10):
     print(f"Executando Validação Cruzada com k={n_folds}")
     
-    data = load_data()
-    # print(data.head(20))
-    data = conform_data(data)
-    # print(data.head(20))
-    clf = train_logistic_regression(data, n_folds)
-    report_model(clf)
+    with mlflow.start_run():
+        mlflow.log_param('model', 'logistic_regression')
+        mlflow.log_param('normaalization', 'none')
+        mlflow.log_param('n_folds', n_folds)
+        
+        data = load_data()
+        data = conform_data(data)
+        clf = train_logistic_regression(data, n_folds)
+        report_model(clf)
     
 if __name__  ==  "__main__":
     app()

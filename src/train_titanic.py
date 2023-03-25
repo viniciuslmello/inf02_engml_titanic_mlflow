@@ -3,6 +3,8 @@ import mlflow
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
+from sklearn.svm import SVC
+
 import typer
 
 def load_data():
@@ -22,6 +24,8 @@ def conform_data(data):
     ).astype('float64')
     conformed.dropna(inplace=True)
     return conformed
+
+
 
 def train_logistic_regression(data, n_folds):
     X = data.drop(columns = ['Survived']).copy()
@@ -48,6 +52,31 @@ def train_logistic_regression(data, n_folds):
     clf.fit(X,y)
     
     return clf
+    
+def train_support_vector_machine(data, n_folds):
+    X = data.drop(columns = ['Survived']).copy()
+    y = data['Survived']
+    
+    params = {
+        'C': [0.1, 1, 5, 10],
+    }
+    
+    cv = StratifiedKFold(n_splits=n_folds)
+       
+    model_template = SVC(kernel='linear')    
+    
+    clf = GridSearchCV(
+        model_template,
+        params,
+        cv=cv,
+        scoring=['f1', 'precision', 'recall'],
+        refit='f1',
+        return_train_score=True,
+
+    )
+    clf.fit(X, y)
+    return clf    
+    
     
 def report_model(clf):
     idx = clf.best_index_
@@ -106,6 +135,25 @@ def train_lr(n_folds : int = 10):
         clf = train_logistic_regression(data, n_folds)
         report_model(clf)
     
+    
+    
+@app.command()
+def train_svm(n_folds : int = 10):
+    print(f"Executando Validação Cruzada com k={n_folds}")
+    
+    experiment_id = mlflow.create_experiment('classificador_titanic')
+    
+    with mlflow.start_run(experiment_id=experiment_id):
+        mlflow.log_param('model', 'svm_linear')
+        mlflow.log_param('normaalization', 'none')
+        mlflow.log_param('n_folds', n_folds)
+        
+        data = load_data()
+        data = conform_data(data)
+        clf = train_support_vector_machine(data, n_folds)
+        report_model(clf)
+        
+            
 if __name__  ==  "__main__":
     app()
 

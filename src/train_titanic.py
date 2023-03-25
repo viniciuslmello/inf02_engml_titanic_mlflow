@@ -1,5 +1,6 @@
 #!/bin/env/python
 import mlflow
+import mlflow.sklearn
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
@@ -47,6 +48,7 @@ def train_logistic_regression(data, n_folds):
         scoring=['f1','precision','recall'],
         refit='f1',
         return_train_score=True,
+        n_jobs=4
     )
     
     clf.fit(X,y)
@@ -72,6 +74,7 @@ def train_support_vector_machine(data, n_folds):
         scoring=['f1', 'precision', 'recall'],
         refit='f1',
         return_train_score=True,
+        n_jobs=4
 
     )
     clf.fit(X, y)
@@ -124,8 +127,10 @@ def train_lr(n_folds : int = 10):
     print(f"Executando Validação Cruzada com k={n_folds}")
     
     experiment_name = 'classificador_titanic'
-    experiment_id = mlflow.get_experiment_by_name(experiment_name)
-    if experiment_id is None:
+    experiment = mlflow.get_experiment_by_name(experiment_name)
+    if experiment is not None:
+        experiment_id = experiment.experiment_id
+    else:
         experiment_id = mlflow.create_experiment(experiment_name)
     
     with mlflow.start_run(experiment_id=experiment_id):
@@ -145,8 +150,10 @@ def train_svm(n_folds : int = 10):
     print(f"Executando Validação Cruzada com k={n_folds}")
     
     experiment_name = 'classificador_titanic'
-    experiment_id = mlflow.get_experiment_by_name(experiment_name)
-    if experiment_id is None:
+    experiment = mlflow.get_experiment_by_name(experiment_name)
+    if experiment is not None:
+        experiment_id = experiment.experiment_id
+    else:
         experiment_id = mlflow.create_experiment(experiment_name)
     
     with mlflow.start_run(experiment_id=experiment_id):
@@ -161,6 +168,7 @@ def train_svm(n_folds : int = 10):
         
             
 if __name__  ==  "__main__":
+    mlflow.sklearn.autolog()
     app()
 
 

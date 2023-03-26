@@ -158,7 +158,7 @@ def train_svm(n_folds : int = 10):
     
     with mlflow.start_run(experiment_id=experiment_id):
         mlflow.log_param('model', 'svm_linear')
-        mlflow.log_param('normaalization', 'none')
+        mlflow.log_param('normalization', 'none')
         mlflow.log_param('n_folds', n_folds)
         
         data = load_data()
